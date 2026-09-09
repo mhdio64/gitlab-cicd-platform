@@ -81,7 +81,7 @@ no_proxy: "localhost,127.0.0.1,192.168.10.0/24"
 ### GitLab Server Settings (`inventories/production/group_vars/gitlab_servers.yml`)
 ```yaml
 # GitLab Package Version & Edition
-gitlab_server_version: "17.4.2"
+gitlab_server_version: "19.3.1"
 gitlab_server_edition: "ce" # 'ce' (Community) or 'ee' (Enterprise)
 
 # Public URL (Enforces HTTPS)
@@ -105,7 +105,7 @@ gitlab_backup_cron_minute: "30"
 ### GitLab Runners Settings (`inventories/production/group_vars/gitlab_runners.yml`)
 ```yaml
 # Runner Package Version
-gitlab_runner_version: "17.4.0"
+gitlab_runner_version: "19.3.1"
 
 # Target GitLab Instance URL
 gitlab_runner_coordinator_url: "https://gitlab.example.com"

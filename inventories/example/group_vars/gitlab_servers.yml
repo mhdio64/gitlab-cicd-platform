@@ -4,7 +4,7 @@
 # ==========================================
 
 # GitLab version pinning (do not use 'latest' in production)
-gitlab_server_version: "17.4.2"
+gitlab_server_version: "19.3.1"
 gitlab_server_edition: "ce"  # 'ce' for Community Edition, 'ee' for Enterprise Edition
 
 # Primary external URL (enforces HTTPS)

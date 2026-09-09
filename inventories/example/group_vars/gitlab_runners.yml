@@ -4,7 +4,7 @@
 # ==========================================
 
 # Runner package version pinning
-gitlab_runner_version: "17.4.0"
+gitlab_runner_version: "19.3.1"
 
 # Target GitLab Coordinator URL
 gitlab_runner_coordinator_url: "https://gitlab.example.com"
@@ -17,7 +17,7 @@ gitlab_runner_check_interval: 5
 
 # Docker Executor Configuration
 gitlab_runner_executor: "docker"
-gitlab_runner_default_image: "alpine:3.20"
+gitlab_runner_default_image: "alpine:3.21"
 
 # Security: Privileged mode is strictly FALSE by default
 gitlab_runner_privileged: false

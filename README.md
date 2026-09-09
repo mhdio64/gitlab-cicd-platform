@@ -140,7 +140,7 @@ all:
 Edit `inventories/production/group_vars/gitlab_servers.yml`:
 ```yaml
 gitlab_server_external_url: "https://gitlab.example.com"
-gitlab_server_version: "17.4.2"
+gitlab_server_version: "19.3.1"
 gitlab_server_edition: "ce"
 
 gitlab_registry_enable: true

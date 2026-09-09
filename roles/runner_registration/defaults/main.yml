@@ -15,7 +15,7 @@ runner_registration_name: "{{ gitlab_runner_name | default(inventory_hostname) }
 runner_registration_profile: "{{ gitlab_runner_profile | default('general') }}"
 runner_registration_tags: "{{ gitlab_runner_tags | default([]) }}"
 runner_registration_executor: "{{ gitlab_runner_executor | default('docker') }}"
-runner_registration_default_image: "{{ gitlab_runner_default_image | default('alpine:3.20') }}"
+runner_registration_default_image: "{{ gitlab_runner_default_image | default('alpine:3.21') }}"
 
 # Security baseline
 runner_registration_privileged: "{{ gitlab_runner_privileged | default(false) }}"

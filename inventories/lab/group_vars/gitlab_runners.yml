@@ -1,7 +1,7 @@
 ---
 # GitLab Runner Configuration for Local Lab
 
-gitlab_runner_version: "17.4.0"
+gitlab_runner_version: "19.3.1"
 gitlab_runner_coordinator_url: "http://gitlab.192.168.56.10.nip.io"
 
 # Concurrency for lab environment
@@ -10,7 +10,7 @@ gitlab_runner_check_interval: 5
 
 # Docker Executor
 gitlab_runner_executor: "docker"
-gitlab_runner_default_image: "alpine:3.20"
+gitlab_runner_default_image: "alpine:3.21"
 gitlab_runner_privileged: false
 
 # Automatically install Docker CE on the fresh Vagrant VM

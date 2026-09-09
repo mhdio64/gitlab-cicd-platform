@@ -2,7 +2,7 @@
 # Defaults for gitlab_server role
 
 # GitLab package version and edition
-gitlab_server_version: "17.4.2"
+gitlab_server_version: "19.3.1"
 gitlab_server_edition: "ce" # 'ce' (Community Edition) or 'ee' (Enterprise Edition)
 gitlab_server_package_hold: true # Lock package to prevent accidental OS upgrades
 

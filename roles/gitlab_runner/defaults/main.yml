@@ -2,7 +2,7 @@
 # Defaults for gitlab_runner role
 
 # GitLab Runner version pinning
-gitlab_runner_version: "17.4.0"
+gitlab_runner_version: "19.3.1"
 gitlab_runner_package_hold: true
 
 # Global concurrency limit across this runner host

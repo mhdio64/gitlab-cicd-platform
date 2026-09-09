@@ -8,7 +8,7 @@ This document details the version pinning strategy, supported upgrade paths, pre
 
 To ensure zero accidental or uncontrolled production outages, this platform enforces explicit **version pinning**:
 
-- **No `latest` Tags**: The variables `gitlab_server_version` and `gitlab_runner_version` must be set to explicit semantic version numbers (e.g., `17.4.2`).
+- **No `latest` Tags**: The variables `gitlab_server_version` and `gitlab_runner_version` must be set to explicit semantic version numbers (e.g., `19.3.1`).
 - **Package Hold / Versionlock**: On both Debian/Ubuntu (`apt-mark hold`) and RHEL/Rocky (`versionlock`), the installed packages are locked. Running generic OS upgrades (`apt upgrade` or `dnf upgrade`) will never inadvertently update GitLab or GitLab Runner.
 - **Controlled Operation**: Upgrades are treated as conscious, planned maintenance events executed through Ansible playbooks.
 
@@ -21,7 +21,7 @@ GitLab does **not** support skipping major or certain minor releases during upgr
 ```text
 ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
 │ Current Ver  │ ──> │ Required     │ ──> │ Latest Minor │ ──> │ Next Major   │
-│ (e.g. 16.11) │     │ Stop 17.0.x  │     │ Stop 17.3.x  │     │ (e.g. 17.4.x)│
+│ (e.g. 18.11) │     │ Stop 19.0.x  │     │ Stop 19.2.x  │     │ (e.g. 19.3.x)│
 └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
 ```
 
@@ -62,8 +62,8 @@ Follow this procedure to upgrade the server:
 ### Step 1: Update Target Version in Variables
 Edit `inventories/production/group_vars/gitlab_servers.yml`:
 ```yaml
-# Update from 17.3.5 to 17.4.2
-gitlab_server_version: "17.4.2"
+# Update to target version
+gitlab_server_version: "19.3.1"
 ```
 
 ### Step 2: Run GitLab Server Playbook
@@ -92,7 +92,7 @@ ansible-playbook -i inventories/production/hosts.yml playbooks/validate.yml --as
 ### Version Compatibility Matrix
 According to official GitLab policy:
 - A GitLab Runner version can be **the same as or older than** the GitLab Server version.
-- A GitLab Runner version **must not be newer** than the GitLab Server version (e.g., do not run Runner 17.4 on GitLab Server 17.3).
+- A GitLab Runner version **must not be newer** than the GitLab Server version (e.g., do not run Runner 19.4 on GitLab Server 19.3).
 
 ```text
 Runner Version <= GitLab Server Version  (Supported)
@@ -102,7 +102,7 @@ Runner Version >  GitLab Server Version  (UNSUPPORTED / May fail job artifacts/A
 ### Runner Fleet Upgrade Procedure
 1. Update `gitlab_runner_version` in `inventories/production/group_vars/gitlab_runners.yml`:
    ```yaml
-   gitlab_runner_version: "17.4.0"
+   gitlab_runner_version: "19.3.1"
    ```
 2. Execute the runner playbook:
    ```bash

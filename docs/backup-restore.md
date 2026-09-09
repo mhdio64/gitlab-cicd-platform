@@ -66,7 +66,7 @@ Follow this exact sequence to restore GitLab onto a fresh or recovered virtual m
 - Same Linux distribution and architecture.
 - Network and DNS configured to route traffic to the recovery host.
 - **Exact same version and edition of GitLab installed**:
-  A backup created on GitLab `17.4.2-ce` **cannot** be restored directly to `17.5.x` or Enterprise Edition without migration.
+  A backup created on GitLab `19.3.1-ce` **cannot** be restored directly to `19.4.x` or Enterprise Edition without migration.
 
 ---
 
@@ -114,8 +114,8 @@ gitlab-ctl status
 Run the restore command with the backup timestamp prefix:
 
 ```bash
-# Example timestamp: 1725890000_2026_09_09_17.4.2
-gitlab-backup restore BACKUP=1725890000_2026_09_09_17.4.2
+# Example timestamp: 1725890000_2026_09_09_19.3.1
+gitlab-backup restore BACKUP=1725890000_2026_09_09_19.3.1
 ```
 *When prompted to overwrite existing database tables and rewrite authorized keys, confirm with `yes`.*
 

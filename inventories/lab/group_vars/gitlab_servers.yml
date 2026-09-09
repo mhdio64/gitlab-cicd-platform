@@ -1,7 +1,7 @@
 ---
 # GitLab Omnibus Configuration for Local Lab
 
-gitlab_server_version: "17.4.2"
+gitlab_server_version: "19.3.1"
 gitlab_server_edition: "ce"
 
 # In local lab without public DNS, nip.io resolves automatically to the VM IP:

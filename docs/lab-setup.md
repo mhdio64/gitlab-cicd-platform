@@ -25,13 +25,13 @@ Host Machine (Your Linux PC)
 ├── gitlab-01 (192.168.56.10 / gitlab.192.168.56.10.nip.io)
 │   ├── OS: Ubuntu 22.04 LTS
 │   ├── Memory: 4096 MB, CPU: 2
-│   └── Omnibus GitLab CE (v17.4.2)
+│   └── Omnibus GitLab CE (v19.3.1)
 │
 └── runner-01 (192.168.56.21)
     ├── OS: Ubuntu 22.04 LTS
     ├── Memory: 2048 MB, CPU: 2
     ├── Docker CE (installed automatically)
-    └── GitLab Runner (v17.4.0) with Docker Executor
+    └── GitLab Runner (v19.3.1) with Docker Executor
 ```
 
 > [!NOTE]
