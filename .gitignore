@@ -8,6 +8,7 @@ __pycache__/
 # Sensitive files & private inventories
 inventories/production/
 inventories/*_vault.yml
+inventories/**/vault.yml
 *.vault
 .vault-pass
 .vault-password

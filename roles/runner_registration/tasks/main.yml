@@ -7,10 +7,10 @@
       - runner_registration_auth_token is defined
       - runner_registration_auth_token | length > 0
       - not ('CHANGE_ME' in runner_registration_auth_token)
-      - runner_registration_auth_token.startswith('glrt-')
+      - runner_registration_auth_token.startswith('glrt')
     fail_msg: >-
       Invalid or missing runner authentication token for '{{ inventory_hostname }}'.
-      GitLab 16+ requires a Runner Authentication Token starting with 'glrt-'.
+      GitLab requires a modern Runner Authentication Token starting with 'glrt'.
       Please generate the token and store it in Ansible Vault.
     success_msg: "Valid Runner Authentication Token format detected."
   when: not (ansible_check_mode | bool)
