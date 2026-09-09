@@ -1,0 +1,6 @@
+---
+environment_name: "lab"
+package_state: "present"
+
+# Timezone across all platform nodes
+system_timezone: "UTC"

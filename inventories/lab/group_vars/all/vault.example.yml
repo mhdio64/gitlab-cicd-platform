@@ -1,0 +1,10 @@
+---
+# ==============================================================================
+# Ansible Vault Template for Lab Environment
+# ==============================================================================
+
+vault_gitlab_root_password: "LabSuperPassword123!"
+
+# Provide the runner token created in GitLab UI:
+vault_gitlab_runner_auth_tokens:
+  runner-01: "glrt-CHANGE_ME_LAB_RUNNER_TOKEN"

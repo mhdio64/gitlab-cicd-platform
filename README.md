@@ -260,6 +260,7 @@ gitlab-cicd-platform/
 
 - 🏛️ [Architecture & Network Flows](docs/architecture.md)
 - 🛠️ [Installation & Operations Guide](docs/installation.md)
+- 🧪 [Local Lab Testing Guide (Vagrant)](docs/lab-setup.md)
 - ⚡ [Runner Fleet Scaling & Profiles](docs/runner-scaling.md)
 - 📦 [Container Registry: Built-in vs External](docs/registry.md)
 - 🛡️ [Security & Hardening Model](docs/security.md)

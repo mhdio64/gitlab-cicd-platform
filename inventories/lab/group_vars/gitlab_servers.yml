@@ -1,0 +1,22 @@
+---
+# GitLab Omnibus Configuration for Local Lab
+
+gitlab_server_version: "17.4.2"
+gitlab_server_edition: "ce"
+
+# In local lab without public DNS, nip.io resolves automatically to the VM IP:
+gitlab_server_external_url: "http://gitlab.192.168.56.10.nip.io"
+gitlab_server_tls_mode: "none"
+
+# Optional: Disable registry in 4GB lab to conserve RAM (set to true if 8GB+ RAM allocated)
+gitlab_registry_enable: false
+
+# Performance tuning for local VM (2 workers)
+gitlab_server_puma_workers: 2
+gitlab_server_puma_min_threads: 2
+gitlab_server_puma_max_threads: 2
+
+# Backup retention in lab (1 day)
+gitlab_backup_keep_time: 86400
+gitlab_backup_cron_hour: "03"
+gitlab_backup_cron_minute: "00"
