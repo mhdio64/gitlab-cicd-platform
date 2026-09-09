@@ -1,0 +1,81 @@
+# ==============================================================================
+# Managed by Ansible - DO NOT EDIT DIRECTLY ON THE SERVER
+# Role: gitlab_server
+# Template: gitlab.rb.j2
+# ==============================================================================
+
+external_url '{{ gitlab_server_external_url }}'
+
+# ------------------------------------------------------------------------------
+# TLS / SSL Configuration
+# ------------------------------------------------------------------------------
+{% if gitlab_server_tls_mode == 'letsencrypt' %}
+letsencrypt['enable'] = true
+letsencrypt['contact_emails'] = {{ gitlab_server_letsencrypt_contact_emails | to_json }}
+letsencrypt['auto_renew'] = true
+letsencrypt['auto_renew_hour'] = "03"
+letsencrypt['auto_renew_minute'] = "15"
+letsencrypt['auto_renew_day_of_month'] = "*/7"
+{% elif gitlab_server_tls_mode == 'custom' %}
+letsencrypt['enable'] = false
+nginx['ssl_certificate'] = "{{ gitlab_server_ssl_certificate }}"
+nginx['ssl_certificate_key'] = "{{ gitlab_server_ssl_certificate_key }}"
+{% elif gitlab_server_tls_mode == 'none' %}
+letsencrypt['enable'] = false
+nginx['listen_https'] = false
+nginx['listen_port'] = 80
+{% endif %}
+
+{% if gitlab_server_external_url.startswith('https://') %}
+nginx['redirect_http_to_https'] = true
+nginx['redirect_http_to_https_port'] = 80
+{% endif %}
+nginx['client_max_body_size'] = '250m'
+
+# ------------------------------------------------------------------------------
+# GitLab Container Registry
+# ------------------------------------------------------------------------------
+{% if (gitlab_registry_enable | default(true)) and (registry_mode | default('gitlab') == 'gitlab') %}
+registry['enable'] = true
+registry_external_url '{{ gitlab_registry_external_url | default(gitlab_server_external_url ~ ":5050") }}'
+gitlab_rails['registry_enabled'] = true
+{% if gitlab_registry_storage_path is defined %}
+gitlab_rails['registry_path'] = "{{ gitlab_registry_storage_path }}"
+{% endif %}
+{% else %}
+registry['enable'] = false
+gitlab_rails['registry_enabled'] = false
+{% endif %}
+
+# ------------------------------------------------------------------------------
+# Performance & Puma Web Server Tuning
+# ------------------------------------------------------------------------------
+puma['worker_processes'] = {{ gitlab_server_puma_workers | default(2) }}
+puma['min_threads'] = {{ gitlab_server_puma_min_threads | default(4) }}
+puma['max_threads'] = {{ gitlab_server_puma_max_threads | default(4) }}
+
+# ------------------------------------------------------------------------------
+# Backup Configuration
+# ------------------------------------------------------------------------------
+gitlab_rails['backup_path'] = "{{ gitlab_backup_path | default('/var/opt/gitlab/backups') }}"
+gitlab_rails['backup_keep_time'] = {{ gitlab_backup_keep_time | default(604800) }}
+
+# ------------------------------------------------------------------------------
+# Monitoring & Observability
+# ------------------------------------------------------------------------------
+prometheus_monitoring['enable'] = {{ gitlab_monitoring_prometheus_enable | default(true) | ternary('true', 'false') }}
+{% if gitlab_monitoring_prometheus_enable | default(true) %}
+prometheus['listen_address'] = '{{ gitlab_monitoring_listen_address | default("0.0.0.0:9090") }}'
+{% endif %}
+
+# ------------------------------------------------------------------------------
+# Timezone
+# ------------------------------------------------------------------------------
+gitlab_rails['time_zone'] = '{{ gitlab_server_timezone | default("UTC") }}'
+
+# ------------------------------------------------------------------------------
+# User-Supplied Extra Configuration
+# ------------------------------------------------------------------------------
+{% if gitlab_server_extra_config is defined and gitlab_server_extra_config | length > 0 %}
+{{ gitlab_server_extra_config }}
+{% endif %}

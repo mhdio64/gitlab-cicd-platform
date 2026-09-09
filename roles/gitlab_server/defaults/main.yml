@@ -1,0 +1,45 @@
+---
+# Defaults for gitlab_server role
+
+# GitLab package version and edition
+gitlab_server_version: "17.4.2"
+gitlab_server_edition: "ce" # 'ce' (Community Edition) or 'ee' (Enterprise Edition)
+gitlab_server_package_hold: true # Lock package to prevent accidental OS upgrades
+
+# Primary external URL (HTTPS is strongly recommended)
+gitlab_server_external_url: "https://gitlab.example.com"
+
+# TLS Configuration
+# Supported modes: 'letsencrypt', 'custom', 'none'
+gitlab_server_tls_mode: "letsencrypt"
+gitlab_server_letsencrypt_contact_emails:
+  - "admin@example.com"
+
+# In custom TLS mode, provide the source paths on the control node or target paths
+gitlab_server_ssl_certificate: "/etc/gitlab/ssl/gitlab.example.com.crt"
+gitlab_server_ssl_certificate_key: "/etc/gitlab/ssl/gitlab.example.com.key"
+gitlab_server_custom_cert_src: ""
+gitlab_server_custom_key_src: ""
+
+# Initial root password (passed securely via Ansible Vault)
+gitlab_server_root_password: "{{ vault_gitlab_root_password | default('') }}"
+
+# Web Server & Performance Sizing
+gitlab_server_puma_workers: 2
+gitlab_server_puma_min_threads: 4
+gitlab_server_puma_max_threads: 4
+
+# Data and Git repository storage paths
+gitlab_server_git_data_dirs:
+  default:
+    path: "/var/opt/gitlab/git-data"
+
+# Timezone
+gitlab_server_timezone: "UTC"
+
+# Extra Omnibus configuration parameters (raw Ruby code appended to gitlab.rb)
+gitlab_server_extra_config: ""
+
+# Readiness timeout in seconds
+gitlab_server_health_check_timeout: 300
+gitlab_server_health_check_delay: 10

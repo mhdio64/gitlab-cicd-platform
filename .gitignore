@@ -1,0 +1,24 @@
+# Ansible runtime artifacts
+*.retry
+*.pyc
+*.pyo
+__pycache__/
+.ansible/
+
+# Sensitive files & private inventories
+inventories/production/
+inventories/*_vault.yml
+*.vault
+.vault-pass
+.vault-password
+
+# OS & Editor files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~
+
+# Test artifacts
+.cache/
+.pytest_cache/

@@ -1,0 +1,21 @@
+---
+# Defaults for runner_docker_executor role
+
+# Docker installation toggle (default: false, assumes OS prepared by ansible-server-bootstrap)
+runner_docker_executor_install_docker: "{{ gitlab_runner_install_docker | default(false) }}"
+
+# Security baseline: Privileged mode is strictly FALSE by default
+runner_docker_executor_privileged: "{{ gitlab_runner_privileged | default(false) }}"
+
+# Default base image for CI jobs
+runner_docker_executor_default_image: "{{ gitlab_runner_default_image | default('alpine:3.20') }}"
+
+# Image pull policy
+runner_docker_executor_pull_policy: "{{ gitlab_runner_pull_policy | default(['always']) }}"
+
+# Container volume mounts (Docker socket is NOT mounted by default)
+runner_docker_executor_volumes: "{{ gitlab_runner_docker_volumes | default(['/cache']) }}"
+
+# Resource quotas per container job
+runner_docker_executor_memory: "{{ gitlab_runner_docker_memory | default('') }}"
+runner_docker_executor_cpus: "{{ gitlab_runner_docker_cpus | default('') }}"

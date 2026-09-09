@@ -1,0 +1,50 @@
+---
+# Main tasks for gitlab_backup role
+
+- name: Ensure application backup directory exists
+  ansible.builtin.file:
+    path: "{{ gitlab_backup_path }}"
+    state: directory
+    owner: "git"
+    group: "git"
+    mode: "0700"
+
+- name: Ensure configuration backup directory exists
+  ansible.builtin.file:
+    path: "{{ gitlab_backup_config_path }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: "0700"
+
+- name: Deploy GitLab backup bundle script
+  ansible.builtin.template:
+    src: "gitlab-backup-bundle.sh.j2"
+    dest: "/usr/local/bin/gitlab-backup-bundle.sh"
+    owner: "root"
+    group: "root"
+    mode: "0700"
+
+- name: Configure system cron job for automated GitLab backups
+  ansible.builtin.cron:
+    name: "gitlab-automated-backup"
+    cron_file: "gitlab-backup"
+    user: "root"
+    hour: "{{ gitlab_backup_cron_hour }}"
+    minute: "{{ gitlab_backup_cron_minute }}"
+    job: "/usr/local/bin/gitlab-backup-bundle.sh >> /var/log/gitlab-backup.log 2>&1"
+    state: "{{ 'present' if gitlab_backup_enable_cron else 'absent' }}"
+
+- name: Execute on-demand GitLab backup bundle when requested
+  ansible.builtin.command:
+    cmd: "/usr/local/bin/gitlab-backup-bundle.sh"
+  register: gitlab_backup_run_result
+  when: gitlab_backup_run_now | bool
+  changed_when: true
+
+- name: Display on-demand backup output
+  ansible.builtin.debug:
+    var: gitlab_backup_run_result.stdout_lines
+  when:
+    - gitlab_backup_run_now | bool
+    - gitlab_backup_run_result is defined

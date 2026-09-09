@@ -1,0 +1,14 @@
+---
+# ==============================================================================
+# Playbook: Trigger On-Demand GitLab Backup (Data + Secrets)
+# Targets: gitlab_servers
+# ==============================================================================
+
+- name: Execute On-Demand GitLab Backup
+  hosts: gitlab_servers
+  become: true
+  gather_facts: true
+  vars:
+    gitlab_backup_run_now: true
+  roles:
+    - role: gitlab_backup

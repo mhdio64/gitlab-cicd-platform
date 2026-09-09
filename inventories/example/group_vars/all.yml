@@ -1,0 +1,14 @@
+---
+# Global environment identifier
+environment_name: "example"
+
+# Package state across roles: 'present' is recommended for production
+package_state: "present"
+
+# Optional corporate proxy settings (leave empty if not required)
+http_proxy: ""
+https_proxy: ""
+no_proxy: "localhost,127.0.0.1,192.168.0.0/16,10.0.0.0/8"
+
+# Timezone across all platform nodes
+system_timezone: "UTC"

@@ -1,0 +1,18 @@
+---
+# Defaults for gitlab_registry role
+
+# Registry operational mode: 'gitlab' (Omnibus built-in) or 'external'
+gitlab_registry_mode: "{{ registry_mode | default('gitlab') }}"
+
+# Enable built-in GitLab Container Registry
+gitlab_registry_enable: true
+
+# External URL for the registry (e.g., dedicated port 5050 on GitLab host)
+gitlab_registry_external_url: "https://gitlab.example.com:5050"
+
+# Storage path on GitLab Server
+gitlab_registry_storage_path: "/var/opt/gitlab/gitlab-rails/shared/registry"
+
+# Health check parameters
+gitlab_registry_health_timeout: 60
+gitlab_registry_health_delay: 5

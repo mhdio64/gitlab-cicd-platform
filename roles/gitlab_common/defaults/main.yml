@@ -1,0 +1,47 @@
+---
+# Defaults for gitlab_common role
+
+# Strict OS support enforcement (fail-closed if OS is not officially supported)
+gitlab_common_enforce_supported_os: true
+
+# Supported distribution families and major versions
+gitlab_common_supported_matrix:
+  Ubuntu:
+    - "22.04"
+    - "24.04"
+  Debian:
+    - "11"
+    - "12"
+  Rocky:
+    - "8"
+    - "9"
+  AlmaLinux:
+    - "8"
+    - "9"
+  RedHat:
+    - "8"
+    - "9"
+  CentOS:
+    - "8"
+    - "9"
+
+# Supported CPU architectures
+gitlab_common_supported_architectures:
+  - "x86_64"
+  - "aarch64"
+
+# Base prerequisite packages per OS family
+gitlab_common_prerequisite_packages_debian:
+  - "apt-transport-https"
+  - "ca-certificates"
+  - "curl"
+  - "gnupg"
+  - "openssh-server"
+  - "tzdata"
+
+gitlab_common_prerequisite_packages_redhat:
+  - "ca-certificates"
+  - "curl"
+  - "openssh-server"
+  - "tzdata"
+  - "policycoreutils-python-utils"

@@ -1,0 +1,35 @@
+---
+# ==========================================
+# GitLab Runner Fleet Configuration
+# ==========================================
+
+# Runner package version pinning
+gitlab_runner_version: "17.4.0"
+
+# Target GitLab Coordinator URL
+gitlab_runner_coordinator_url: "https://gitlab.example.com"
+
+# Maximum concurrent jobs executed simultaneously across this runner host
+gitlab_runner_concurrent: 4
+
+# Polling check interval in seconds
+gitlab_runner_check_interval: 5
+
+# Docker Executor Configuration
+gitlab_runner_executor: "docker"
+gitlab_runner_default_image: "alpine:3.20"
+
+# Security: Privileged mode is strictly FALSE by default
+gitlab_runner_privileged: false
+
+# Pull policy: 'always', 'if-not-present', or 'never'
+gitlab_runner_pull_policy:
+  - "always"
+
+# Docker volume mounts (socket /var/run/docker.sock NOT mounted by default)
+gitlab_runner_docker_volumes:
+  - "/cache"
+
+# Docker Engine installation toggle on runner host:
+# Set to true if ansible-server-bootstrap did not install docker
+gitlab_runner_install_docker: false

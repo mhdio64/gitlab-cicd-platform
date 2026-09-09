@@ -1,0 +1,50 @@
+---
+# Task: Install pinned GitLab Runner package and enforce hold
+
+- name: Determine GitLab Runner package string for Debian/Ubuntu
+  ansible.builtin.set_fact:
+    gitlab_runner_pkg_spec: "gitlab-runner={{ gitlab_runner_version }}-1"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Determine GitLab Runner package string for RedHat
+  ansible.builtin.set_fact:
+    gitlab_runner_pkg_spec: "gitlab-runner-{{ gitlab_runner_version }}-1"
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Unhold GitLab Runner package before installation (Debian)
+  ansible.builtin.dpkg_selections:
+    name: "gitlab-runner"
+    selection: install
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - gitlab_runner_package_hold | bool
+  failed_when: false
+
+- name: Install GitLab Runner package (Debian/Ubuntu)
+  ansible.builtin.apt:
+    name: "{{ gitlab_runner_pkg_spec }}"
+    state: present
+    update_cache: false
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install GitLab Runner package (RedHat)
+  ansible.builtin.dnf:
+    name: "{{ gitlab_runner_pkg_spec }}"
+    state: present
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Hold GitLab Runner package (Debian)
+  ansible.builtin.dpkg_selections:
+    name: "gitlab-runner"
+    selection: hold
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - gitlab_runner_package_hold | bool
+
+- name: Hold GitLab Runner package (RedHat)
+  community.general.dnf_versionlock:
+    name: "gitlab-runner"
+    state: present
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - gitlab_runner_package_hold | bool

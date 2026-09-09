@@ -1,0 +1,35 @@
+---
+# Task: Functional validation suite for GitLab Runner fleet
+
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Assert gitlab-runner service is running
+  ansible.builtin.assert:
+    that:
+      - "'gitlab-runner.service' in ansible_facts.services"
+      - ansible_facts.services['gitlab-runner.service'].state == 'running'
+    fail_msg: >-
+      GitLab Runner service is not running on '{{ inventory_hostname }}'.
+      State: {{ ansible_facts.services['gitlab-runner.service'].state | default('not found') }}
+    success_msg: "GitLab Runner systemd service is active and running."
+
+- name: Check Docker daemon status on runner host
+  ansible.builtin.command:
+    cmd: "docker info"
+  register: gitlab_validation_docker_status
+  changed_when: false
+
+- name: Verify runner registration connectivity with GitLab
+  ansible.builtin.command:
+    cmd: "gitlab-runner verify"
+  register: gitlab_validation_runner_verify
+  changed_when: false
+  when: not (ansible_check_mode | bool)
+
+- name: Report GitLab Runner health validation
+  ansible.builtin.debug:
+    msg:
+      - "GitLab Runner '{{ inventory_hostname }}' validation: PASSED"
+      - "Profile: {{ gitlab_runner_profile | default('general') }}"
+      - "Service State: {{ ansible_facts.services['gitlab-runner.service'].state }}"

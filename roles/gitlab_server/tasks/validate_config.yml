@@ -1,0 +1,47 @@
+---
+# Task: Fail-closed pre-flight validation for gitlab_server configuration
+
+- name: Validate GitLab edition
+  ansible.builtin.assert:
+    that:
+      - gitlab_server_edition in ['ce', 'ee']
+    fail_msg: >-
+      Invalid gitlab_server_edition: '{{ gitlab_server_edition }}'.
+      Only 'ce' (Community Edition) and 'ee' (Enterprise Edition) are supported.
+    success_msg: "GitLab edition '{{ gitlab_server_edition }}' is valid."
+
+- name: Validate GitLab version pinning
+  ansible.builtin.assert:
+    that:
+      - gitlab_server_version is defined
+      - gitlab_server_version | length > 0
+      - gitlab_server_version != 'latest'
+    fail_msg: >-
+      Explicit version pinning is required. 'gitlab_server_version' must not be empty or 'latest'.
+    success_msg: "GitLab pinned version '{{ gitlab_server_version }}' is specified."
+
+- name: Validate GitLab external URL
+  ansible.builtin.assert:
+    that:
+      - gitlab_server_external_url is defined
+      - gitlab_server_external_url.startswith('https://') or gitlab_server_external_url.startswith('http://')
+    fail_msg: >-
+      Invalid gitlab_server_external_url: '{{ gitlab_server_external_url | default('') }}'.
+      Must start with 'https://' or 'http://'.
+    success_msg: "External URL '{{ gitlab_server_external_url }}' is valid."
+
+- name: Validate TLS mode consistency
+  ansible.builtin.assert:
+    that:
+      - gitlab_server_tls_mode in ['letsencrypt', 'custom', 'none']
+    fail_msg: >-
+      Invalid gitlab_server_tls_mode: '{{ gitlab_server_tls_mode }}'.
+      Supported options are 'letsencrypt', 'custom', or 'none'.
+
+- name: Enforce HTTPS consistency
+  ansible.builtin.assert:
+    that:
+      - not (gitlab_server_external_url.startswith('https://') and gitlab_server_tls_mode == 'none')
+    fail_msg: >-
+      Conflicting TLS configuration: external_url uses HTTPS ('{{ gitlab_server_external_url }}')
+      but gitlab_server_tls_mode is set to 'none'.

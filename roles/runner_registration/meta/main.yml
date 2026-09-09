@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: "Mahdi"
+  description: "Automated idempotent registration of GitLab Runners using modern glrt tokens"
+  license: "MIT"
+  min_ansible_version: "2.15.0"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "jammy"
+        - "noble"
+    - name: Debian
+      versions:
+        - "bullseye"
+        - "bookworm"
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+dependencies:
+  - role: "gitlab_common"

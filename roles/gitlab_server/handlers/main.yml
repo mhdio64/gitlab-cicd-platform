@@ -1,0 +1,14 @@
+---
+# Handlers for gitlab_server role
+
+- name: Reconfigure gitlab
+  ansible.builtin.command:
+    cmd: "gitlab-ctl reconfigure"
+  listen: "reconfigure gitlab"
+  changed_when: true
+
+- name: Restart gitlab
+  ansible.builtin.command:
+    cmd: "gitlab-ctl restart"
+  listen: "restart gitlab"
+  changed_when: true

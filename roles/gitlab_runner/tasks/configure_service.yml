@@ -1,0 +1,16 @@
+---
+# Task: Manage GitLab Runner systemd service and directories
+
+- name: Ensure /etc/gitlab-runner configuration directory exists
+  ansible.builtin.file:
+    path: "/etc/gitlab-runner"
+    state: directory
+    mode: "0700"
+    owner: "root"
+    group: "root"
+
+- name: Ensure gitlab-runner service is configured and active
+  ansible.builtin.service:
+    name: "gitlab-runner"
+    state: "{{ gitlab_runner_service_state }}"
+    enabled: "{{ gitlab_runner_service_enabled }}"

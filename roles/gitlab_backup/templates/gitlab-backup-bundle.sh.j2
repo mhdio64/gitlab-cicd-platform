@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Managed by Ansible - DO NOT EDIT DIRECTLY
+# Script: gitlab-backup-bundle.sh
+# Purpose: Orchestrates both GitLab data and secrets/config backups
+# ==============================================================================
+set -euo pipefail
+
+TIMESTAMP="$(date +%s_%Y_%m_%d)"
+CONFIG_DIR="{{ gitlab_backup_config_path }}"
+RETENTION_DAYS="{{ (gitlab_backup_keep_time | int // 86400) }}"
+
+echo "[$(date -u)] Starting GitLab application data backup..."
+gitlab-backup create CRON=1
+
+echo "[$(date -u)] Starting GitLab configuration & secrets backup..."
+mkdir -p "${CONFIG_DIR}"
+chmod 0700 "${CONFIG_DIR}"
+
+tar -czf "${CONFIG_DIR}/gitlab_config_backup_${TIMESTAMP}.tar.gz" \
+    -C /etc/gitlab gitlab-secrets.json gitlab.rb
+
+chmod 0600 "${CONFIG_DIR}/gitlab_config_backup_${TIMESTAMP}.tar.gz"
+echo "[$(date -u)] Configuration backup saved: ${CONFIG_DIR}/gitlab_config_backup_${TIMESTAMP}.tar.gz"
+
+echo "[$(date -u)] Pruning configuration backups older than ${RETENTION_DAYS} days..."
+find "${CONFIG_DIR}" -name "gitlab_config_backup_*.tar.gz" -type f -mtime +"${RETENTION_DAYS}" -delete
+
+echo "[$(date -u)] GitLab backup bundle completed successfully."

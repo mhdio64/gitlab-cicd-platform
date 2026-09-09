@@ -1,0 +1,14 @@
+---
+# Defaults for gitlab_runner role
+
+# GitLab Runner version pinning
+gitlab_runner_version: "17.4.0"
+gitlab_runner_package_hold: true
+
+# Global concurrency limit across this runner host
+gitlab_runner_concurrent: 4
+gitlab_runner_check_interval: 5
+
+# Systemd service state
+gitlab_runner_service_state: "started"
+gitlab_runner_service_enabled: true

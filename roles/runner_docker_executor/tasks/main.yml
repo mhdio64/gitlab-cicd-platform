@@ -1,0 +1,47 @@
+---
+# Entry point for runner_docker_executor role
+
+- name: Fail-closed if Docker is missing and installation is disabled
+  ansible.builtin.assert:
+    that:
+      - gitlab_common_docker_is_installed or runner_docker_executor_install_docker
+    fail_msg: >-
+      Docker Engine is not installed on runner host '{{ inventory_hostname }}'.
+      Either install Docker via 'ansible-server-bootstrap' (recommended)
+      or set 'gitlab_runner_install_docker: true' in inventory variables to install Docker CE.
+    success_msg: "Docker Engine prerequisite check passed."
+
+- name: Install Docker CE when requested and not present
+  ansible.builtin.include_tasks: install_docker.yml
+  when:
+    - not gitlab_common_docker_is_installed
+    - runner_docker_executor_install_docker | bool
+
+- name: Ensure Docker service is enabled and started
+  ansible.builtin.service:
+    name: "docker"
+    state: started
+    enabled: true
+
+- name: Verify Docker daemon responsiveness
+  ansible.builtin.command:
+    cmd: "docker info"
+  register: runner_docker_executor_docker_info
+  changed_when: false
+
+- name: Security warning if privileged mode is active
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: Privileged mode is enabled on '{{ inventory_hostname }}'.
+      Ensure this runner only processes trusted workloads and is restricted by tags.
+  when: runner_docker_executor_privileged | bool
+
+- name: Prevent unintended Docker socket mount in CI containers
+  ansible.builtin.assert:
+    that:
+      - "not ('/var/run/docker.sock:/var/run/docker.sock' in runner_docker_executor_volumes)"
+    fail_msg: >-
+      Security violation: Mounting '/var/run/docker.sock' is forbidden by default
+      to prevent container breakout and host compromise.
+    success_msg: "Docker socket security check passed."
+  when: not (gitlab_runner_allow_docker_socket | default(false))

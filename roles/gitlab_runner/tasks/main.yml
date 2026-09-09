@@ -1,0 +1,16 @@
+---
+# Entry point for gitlab_runner role
+
+- name: Configure official GitLab Runner APT repository (Debian/Ubuntu)
+  ansible.builtin.include_tasks: repository_debian.yml
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Configure official GitLab Runner YUM repository (RedHat)
+  ansible.builtin.include_tasks: repository_redhat.yml
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install pinned GitLab Runner package
+  ansible.builtin.include_tasks: install_package.yml
+
+- name: Ensure GitLab Runner service state
+  ansible.builtin.include_tasks: configure_service.yml

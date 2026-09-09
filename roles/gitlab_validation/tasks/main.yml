@@ -1,0 +1,10 @@
+---
+# Entry point for gitlab_validation role
+
+- name: Execute GitLab Server validation
+  ansible.builtin.include_tasks: validate_gitlab_server.yml
+  when: "'gitlab_servers' in group_names"
+
+- name: Execute GitLab Runner fleet validation
+  ansible.builtin.include_tasks: validate_gitlab_runner.yml
+  when: "'gitlab_runners' in group_names"

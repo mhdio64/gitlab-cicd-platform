@@ -1,0 +1,26 @@
+---
+# Task: Ensure OS prerequisite packages are installed
+
+- name: Update apt cache (Debian family)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install prerequisite packages (Debian family)
+  ansible.builtin.apt:
+    name: "{{ gitlab_common_prerequisite_packages_debian }}"
+    state: present
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install prerequisite packages (RedHat family)
+  ansible.builtin.dnf:
+    name: "{{ gitlab_common_prerequisite_packages_redhat }}"
+    state: present
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Ensure OpenSSH server service is enabled and started
+  ansible.builtin.service:
+    name: "{{ 'ssh' if ansible_facts['os_family'] == 'Debian' else 'sshd' }}"
+    state: started
+    enabled: true

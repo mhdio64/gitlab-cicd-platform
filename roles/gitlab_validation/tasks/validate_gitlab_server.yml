@@ -1,0 +1,46 @@
+---
+# Task: Functional validation suite for GitLab Server
+
+- name: Validate GitLab Omnibus services via gitlab-ctl
+  ansible.builtin.command:
+    cmd: "gitlab-ctl status"
+  register: gitlab_validation_server_status
+  changed_when: false
+
+- name: Validate GitLab Web UI / HTTPS responsiveness
+  ansible.builtin.uri:
+    url: "{{ gitlab_server_external_url }}/users/sign_in"
+    method: GET
+    status_code:
+      - 200
+      - 302
+    validate_certs: "{{ gitlab_server_tls_mode != 'custom' }}"
+  register: gitlab_validation_web_response
+  until: gitlab_validation_web_response.status in [200, 302]
+  retries: "{{ (gitlab_validation_timeout | int // gitlab_validation_delay | int) }}"
+  delay: "{{ gitlab_validation_delay }}"
+  when: not (ansible_check_mode | bool)
+
+- name: Validate GitLab Container Registry responsiveness
+  ansible.builtin.uri:
+    url: "{{ gitlab_registry_external_url }}/v2/"
+    method: GET
+    status_code:
+      - 200
+      - 401
+    validate_certs: "{{ gitlab_server_tls_mode != 'custom' }}"
+  register: gitlab_validation_registry_response
+  until: gitlab_validation_registry_response.status in [200, 401]
+  retries: "{{ (gitlab_validation_timeout | int // gitlab_validation_delay | int) }}"
+  delay: "{{ gitlab_validation_delay }}"
+  when:
+    - (gitlab_registry_enable | default(true)) | bool
+    - (registry_mode | default('gitlab')) == 'gitlab'
+    - not (ansible_check_mode | bool)
+
+- name: Report GitLab Server health validation
+  ansible.builtin.debug:
+    msg:
+      - "GitLab Server validation: PASSED"
+      - "Endpoint: {{ gitlab_server_external_url }}"
+      - "Status Code: {{ gitlab_validation_web_response.status | default('N/A') }}"

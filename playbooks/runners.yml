@@ -1,0 +1,15 @@
+---
+# ==============================================================================
+# Playbook: Provision, Configure, and Register GitLab Runner Fleet
+# Targets: gitlab_runners
+# ==============================================================================
+
+- name: Provision and Register GitLab Runner Fleet
+  hosts: gitlab_runners
+  become: true
+  gather_facts: true
+  roles:
+    - role: gitlab_common
+    - role: gitlab_runner
+    - role: runner_docker_executor
+    - role: runner_registration

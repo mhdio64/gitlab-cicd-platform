@@ -1,0 +1,28 @@
+---
+# ==============================================================================
+# Reference CI Pipeline: Rootless Image Build using BuildKit
+# Runs in Docker Executor with privileged = false
+# ==============================================================================
+
+build-with-buildkit:
+  stage: build
+  tags:
+    - container-build
+  image: moby/buildkit:v0.16.0-rootless
+  variables:
+    BUILDKITD_FLAGS: "--oci-worker-no-process-sandbox"
+    REGISTRY_TARGET_URL: "${REGISTRY_URL:-$CI_REGISTRY}"
+    REGISTRY_TARGET_IMAGE: "${REGISTRY_IMAGE:-$CI_REGISTRY_IMAGE}"
+    REGISTRY_TARGET_USER: "${REGISTRY_USER:-$CI_REGISTRY_USER}"
+    REGISTRY_TARGET_PASSWORD: "${REGISTRY_PASSWORD:-$CI_REGISTRY_PASSWORD}"
+  script:
+    - mkdir -p ~/.docker
+    - >-
+      echo "{\"auths\":{\"$REGISTRY_TARGET_URL\":{\"username\":\"$REGISTRY_TARGET_USER\",
+      \"password\":\"$REGISTRY_TARGET_PASSWORD\"}}}" > ~/.docker/config.json
+    - >-
+      buildctl-daemonless.sh build
+      --frontend dockerfile.v0
+      --local context=.
+      --local dockerfile=.
+      --output type=image,name="${REGISTRY_TARGET_IMAGE}:${CI_COMMIT_SHORT_SHA}",push=true

@@ -1,0 +1,84 @@
+---
+# Entry point for runner_registration role
+
+- name: Validate runner authentication token format (Fail-Closed)
+  ansible.builtin.assert:
+    that:
+      - runner_registration_auth_token is defined
+      - runner_registration_auth_token | length > 0
+      - not ('CHANGE_ME' in runner_registration_auth_token)
+      - runner_registration_auth_token.startswith('glrt-')
+    fail_msg: >-
+      Invalid or missing runner authentication token for '{{ inventory_hostname }}'.
+      GitLab 16+ requires a Runner Authentication Token starting with 'glrt-'.
+      Please generate the token and store it in Ansible Vault.
+    success_msg: "Valid Runner Authentication Token format detected."
+  when: not (ansible_check_mode | bool)
+
+- name: Check if /etc/gitlab-runner/config.toml exists
+  ansible.builtin.stat:
+    path: "/etc/gitlab-runner/config.toml"
+  register: runner_registration_config_stat
+
+- name: Read existing /etc/gitlab-runner/config.toml
+  ansible.builtin.slurp:
+    src: "/etc/gitlab-runner/config.toml"
+  register: runner_registration_config_slurp
+  when: runner_registration_config_stat.stat.exists
+
+- name: Determine if runner is already registered
+  ansible.builtin.set_fact:
+    runner_registration_already_registered: >-
+      {{ (runner_registration_auth_token in (runner_registration_config_slurp.content | b64decode))
+         if (runner_registration_config_stat.stat.exists and runner_registration_config_slurp is defined)
+         else false }}
+
+- name: Register GitLab Runner with Docker Executor (Idempotent)
+  ansible.builtin.command:
+    cmd: >-
+      gitlab-runner register
+      --non-interactive
+      --url "{{ runner_registration_coordinator_url }}"
+      --token "{{ runner_registration_auth_token }}"
+      --name "{{ runner_registration_name }}"
+      --executor "{{ runner_registration_executor }}"
+      --docker-image "{{ runner_registration_default_image }}"
+      --docker-privileged="{{ runner_registration_privileged | ternary('true', 'false') }}"
+      --docker-pull-policy="{{ runner_registration_pull_policy | join(',') }}"
+      {{ runner_registration_volumes | map('regex_replace', '^(.*)$', '--docker-volumes "\1"') | join(' ') }}
+  register: runner_registration_register_result
+  when: not runner_registration_already_registered
+  changed_when: true
+  notify: "restart gitlab-runner"
+
+- name: Configure global concurrency in /etc/gitlab-runner/config.toml
+  ansible.builtin.lineinfile:
+    path: "/etc/gitlab-runner/config.toml"
+    regexp: '^concurrent = .*'
+    line: "concurrent = {{ runner_registration_concurrency }}"
+    state: present
+  notify: "restart gitlab-runner"
+  when: runner_registration_config_stat.stat.exists or runner_registration_register_result.changed
+
+- name: Configure check_interval in /etc/gitlab-runner/config.toml
+  ansible.builtin.lineinfile:
+    path: "/etc/gitlab-runner/config.toml"
+    regexp: '^check_interval = .*'
+    line: "check_interval = {{ runner_registration_check_interval }}"
+    state: present
+  notify: "restart gitlab-runner"
+  when: runner_registration_config_stat.stat.exists or runner_registration_register_result.changed
+
+- name: Flush handlers to apply runner changes
+  ansible.builtin.meta: flush_handlers
+
+- name: Verify GitLab Runner operational status
+  ansible.builtin.command:
+    cmd: "gitlab-runner verify"
+  register: runner_registration_verify_output
+  changed_when: false
+  when: not (ansible_check_mode | bool)
+
+- name: Confirm runner registration status
+  ansible.builtin.debug:
+    msg: "Runner '{{ runner_registration_name }}' is active and verified with {{ runner_registration_coordinator_url }}"

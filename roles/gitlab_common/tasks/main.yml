@@ -1,0 +1,11 @@
+---
+# Entry point for gitlab_common role
+
+- name: Validate operating system support matrix
+  ansible.builtin.include_tasks: validate_os.yml
+
+- name: Discover current node state
+  ansible.builtin.include_tasks: discover_state.yml
+
+- name: Ensure base prerequisite packages
+  ansible.builtin.include_tasks: prerequisites.yml

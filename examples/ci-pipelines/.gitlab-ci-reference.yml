@@ -1,0 +1,53 @@
+---
+# ==============================================================================
+# Reference CI Pipeline: Unified Registry Abstraction
+# Works seamlessly with both 'registry_mode: gitlab' and 'registry_mode: external'
+# ==============================================================================
+
+stages:
+  - lint
+  - build
+  - test
+
+# Reusable authentication anchor
+.registry_auth: &registry_auth
+  before_script:
+    - export REGISTRY_URL="${REGISTRY_URL:-$CI_REGISTRY}"
+    - export REGISTRY_IMAGE="${REGISTRY_IMAGE:-$CI_REGISTRY_IMAGE}"
+    - export REGISTRY_USER="${REGISTRY_USER:-$CI_REGISTRY_USER}"
+    - export REGISTRY_PASSWORD="${REGISTRY_PASSWORD:-$CI_REGISTRY_PASSWORD}"
+    - echo "Authenticating against registry ${REGISTRY_URL} as ${REGISTRY_USER}..."
+    - echo "${REGISTRY_PASSWORD}" | docker login "${REGISTRY_URL}" -u "${REGISTRY_USER}" --password-stdin
+
+lint-code:
+  stage: lint
+  tags:
+    - general
+  image: alpine:3.20
+  script:
+    - echo "Running application code linting..."
+    - uname -a
+
+build-application-image:
+  stage: build
+  tags:
+    - container-build
+  image:
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    entrypoint: [""]
+  variables:
+    REGISTRY_TARGET_URL: "${REGISTRY_URL:-$CI_REGISTRY}"
+    REGISTRY_TARGET_IMAGE: "${REGISTRY_IMAGE:-$CI_REGISTRY_IMAGE}"
+    REGISTRY_TARGET_USER: "${REGISTRY_USER:-$CI_REGISTRY_USER}"
+    REGISTRY_TARGET_PASSWORD: "${REGISTRY_PASSWORD:-$CI_REGISTRY_PASSWORD}"
+  script:
+    - mkdir -p /kaniko/.docker
+    - >-
+      echo "{\"auths\":{\"$REGISTRY_TARGET_URL\":{\"username\":\"$REGISTRY_TARGET_USER\",
+      \"password\":\"$REGISTRY_TARGET_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${REGISTRY_TARGET_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+      --destination "${REGISTRY_TARGET_IMAGE}:latest"

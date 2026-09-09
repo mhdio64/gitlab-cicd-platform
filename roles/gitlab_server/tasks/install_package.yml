@@ -1,0 +1,57 @@
+---
+# Task: Install pinned GitLab Omnibus package and enforce package hold
+
+- name: Determine GitLab package string for Debian/Ubuntu
+  ansible.builtin.set_fact:
+    gitlab_server_pkg_spec: >-
+      gitlab-{{ gitlab_server_edition }}={{ gitlab_server_version }}-{{ gitlab_server_edition }}.0
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Determine GitLab package string for RedHat
+  ansible.builtin.set_fact:
+    gitlab_server_pkg_spec: >-
+      gitlab-{{ gitlab_server_edition }}-{{ gitlab_server_version }}-{{
+      gitlab_server_edition }}.0.el{{ ansible_facts['distribution_major_version'] }}
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Unhold GitLab package before installation (Debian)
+  ansible.builtin.dpkg_selections:
+    name: "gitlab-{{ gitlab_server_edition }}"
+    selection: install
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - gitlab_server_package_hold | bool
+  failed_when: false
+
+- name: Install GitLab Omnibus package (Debian/Ubuntu)
+  ansible.builtin.apt:
+    name: "{{ gitlab_server_pkg_spec }}"
+    state: present
+    update_cache: false
+  environment:
+    EXTERNAL_URL: "{{ gitlab_server_external_url }}"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install GitLab Omnibus package (RedHat)
+  ansible.builtin.dnf:
+    name: "{{ gitlab_server_pkg_spec }}"
+    state: present
+  environment:
+    EXTERNAL_URL: "{{ gitlab_server_external_url }}"
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Hold GitLab package to prevent accidental upgrades (Debian)
+  ansible.builtin.dpkg_selections:
+    name: "gitlab-{{ gitlab_server_edition }}"
+    selection: hold
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - gitlab_server_package_hold | bool
+
+- name: Hold GitLab package to prevent accidental upgrades (RedHat)
+  community.general.dnf_versionlock:
+    name: "gitlab-{{ gitlab_server_edition }}"
+    state: present
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - gitlab_server_package_hold | bool

@@ -1,0 +1,14 @@
+---
+# ==============================================================================
+# Playbook: Provision and Manage GitLab Omnibus Server & Container Registry
+# Targets: gitlab_servers
+# ==============================================================================
+
+- name: Provision GitLab Server and Registry
+  hosts: gitlab_servers
+  become: true
+  gather_facts: true
+  roles:
+    - role: gitlab_common
+    - role: gitlab_server
+    - role: gitlab_registry

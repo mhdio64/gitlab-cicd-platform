@@ -1,0 +1,14 @@
+---
+# Host-specific variables for runner-01
+ansible_host: "192.168.10.21"
+gitlab_runner_profile: "general"
+gitlab_runner_name: "runner-01-general"
+
+gitlab_runner_tags:
+  - "general"
+  - "docker"
+  - "linux"
+
+gitlab_runner_protected: false
+gitlab_runner_run_untagged: true
+gitlab_runner_concurrency: 4

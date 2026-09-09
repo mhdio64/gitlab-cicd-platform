@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  author: "Mahdi"
+  description: "Common OS validation, prerequisites, and state discovery for GitLab CI/CD Platform"
+  license: "MIT"
+  min_ansible_version: "2.15.0"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "jammy"
+        - "noble"
+    - name: Debian
+      versions:
+        - "bullseye"
+        - "bookworm"
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+dependencies: []

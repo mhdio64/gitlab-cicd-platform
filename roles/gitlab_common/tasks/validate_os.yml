@@ -1,0 +1,27 @@
+---
+# Task: Validate Operating System and Architecture against official support matrix
+
+- name: Validate CPU architecture
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['architecture'] in gitlab_common_supported_architectures
+    fail_msg: >-
+      Unsupported CPU architecture: '{{ ansible_facts['architecture'] }}'.
+      GitLab platform only supports: {{ gitlab_common_supported_architectures | join(', ') }}.
+    success_msg: "Architecture '{{ ansible_facts['architecture'] }}' is supported."
+  when: gitlab_common_enforce_supported_os | bool
+
+- name: Validate OS distribution and release version
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['distribution'] in gitlab_common_supported_matrix
+      - (ansible_facts['distribution_version'] in gitlab_common_supported_matrix[ansible_facts['distribution']]) or
+        (ansible_facts['distribution_major_version'] in gitlab_common_supported_matrix[ansible_facts['distribution']])
+    fail_msg: >-
+      Unsupported OS distribution or version:
+      '{{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}'.
+      Please refer to docs/architecture.md for supported operating systems.
+    success_msg: >-
+      OS distribution '{{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}'
+      is officially supported.
+  when: gitlab_common_enforce_supported_os | bool

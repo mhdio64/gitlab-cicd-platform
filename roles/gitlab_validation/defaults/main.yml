@@ -1,0 +1,5 @@
+---
+# Defaults for gitlab_validation role
+
+gitlab_validation_timeout: 30
+gitlab_validation_delay: 5

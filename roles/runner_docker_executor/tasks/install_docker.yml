@@ -1,0 +1,65 @@
+---
+# Task: Fallback installation of Docker Engine when gitlab_runner_install_docker is enabled
+
+- name: Ensure /etc/apt/keyrings directory exists (Debian)
+  ansible.builtin.file:
+    path: "/etc/apt/keyrings"
+    state: directory
+    mode: "0755"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Download Docker official GPG key (Debian)
+  ansible.builtin.get_url:
+    url: "https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }}/gpg"
+    dest: "/etc/apt/keyrings/docker.asc"
+    mode: "0644"
+  register: runner_docker_executor_gpg_download
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Dearmor Docker GPG key (Debian)
+  ansible.builtin.command:
+    cmd: "gpg --dearmor -o /etc/apt/keyrings/docker.gpg /etc/apt/keyrings/docker.asc"
+    creates: "/etc/apt/keyrings/docker.gpg"
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - runner_docker_executor_gpg_download.changed # noqa: no-handler
+
+- name: Configure Docker APT repository (Debian)
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [arch={{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}
+      signed-by=/etc/apt/keyrings/docker.gpg]
+      https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }}
+      {{ ansible_facts['distribution_release'] }} stable
+    filename: "docker"
+    state: present
+    update_cache: true
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Configure Docker YUM repository (RedHat)
+  ansible.builtin.yum_repository:
+    name: "docker-ce"
+    description: "Docker CE Stable - $basearch"
+    baseurl: "https://download.docker.com/linux/centos/$releasever/$basearch/stable"
+    gpgcheck: true
+    gpgkey: "https://download.docker.com/linux/centos/gpg"
+    state: present
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install Docker CE packages (Debian)
+  ansible.builtin.apt:
+    name:
+      - "docker-ce"
+      - "docker-ce-cli"
+      - "containerd.io"
+    state: present
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install Docker CE packages (RedHat)
+  ansible.builtin.dnf:
+    name:
+      - "docker-ce"
+      - "docker-ce-cli"
+      - "containerd.io"
+    state: present
+  when: ansible_facts['os_family'] == 'RedHat'

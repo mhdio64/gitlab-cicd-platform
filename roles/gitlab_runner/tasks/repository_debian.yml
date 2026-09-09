@@ -1,0 +1,35 @@
+---
+# Task: Configure official GitLab Runner APT repository for Debian/Ubuntu
+
+- name: Ensure /etc/apt/keyrings directory exists
+  ansible.builtin.file:
+    path: "/etc/apt/keyrings"
+    state: directory
+    mode: "0755"
+    owner: "root"
+    group: "root"
+
+- name: Download GitLab Runner GPG key
+  ansible.builtin.get_url:
+    url: "https://packages.gitlab.com/runner/gitlab-runner/gpgkey"
+    dest: "/etc/apt/keyrings/gitlab-runner.asc"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  register: gitlab_runner_gpg_download
+
+- name: Dearmor GitLab Runner GPG key for apt keyring
+  ansible.builtin.command:
+    cmd: "gpg --dearmor -o /etc/apt/keyrings/gitlab-runner.gpg /etc/apt/keyrings/gitlab-runner.asc"
+    creates: "/etc/apt/keyrings/gitlab-runner.gpg"
+  when: gitlab_runner_gpg_download.changed # noqa: no-handler
+
+- name: Configure GitLab Runner APT repository source
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [signed-by=/etc/apt/keyrings/gitlab-runner.gpg]
+      https://packages.gitlab.com/runner/gitlab-runner/{{ ansible_facts['distribution'] | lower }}/
+      {{ ansible_facts['distribution_release'] }} main
+    filename: "gitlab_runner"
+    state: present
+    update_cache: true

@@ -1,0 +1,12 @@
+---
+# ==============================================================================
+# Playbook: End-to-End Functional Platform Health Validation
+# Targets: all (gitlab_servers, gitlab_runners)
+# ==============================================================================
+
+- name: Validate GitLab CI/CD Platform Health
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - role: gitlab_validation

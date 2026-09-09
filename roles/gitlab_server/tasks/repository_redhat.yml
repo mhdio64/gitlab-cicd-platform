@@ -1,0 +1,16 @@
+---
+# Task: Configure official GitLab Omnibus YUM/DNF repository for RedHat/Rocky/AlmaLinux
+
+- name: Configure GitLab YUM repository
+  ansible.builtin.yum_repository:
+    name: "gitlab_gitlab-{{ gitlab_server_edition }}"
+    description: "GitLab {{ gitlab_server_edition | upper }} Official Repository"
+    baseurl: >-
+      https://packages.gitlab.com/gitlab/gitlab-{{ gitlab_server_edition }}/el/{{
+      ansible_facts['distribution_major_version'] }}/$basearch
+    gpgcheck: true
+    repo_gpgcheck: true
+    gpgkey: "https://packages.gitlab.com/gitlab/gitlab-{{ gitlab_server_edition }}/gpgkey"
+    sslverify: true
+    sslcacert: "/etc/pki/tls/certs/ca-bundle.crt"
+    state: present

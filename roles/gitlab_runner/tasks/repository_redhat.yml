@@ -1,0 +1,16 @@
+---
+# Task: Configure official GitLab Runner YUM repository for RedHat/Rocky
+
+- name: Configure GitLab Runner YUM repository
+  ansible.builtin.yum_repository:
+    name: "gitlab_runner"
+    description: "GitLab Runner Official Repository"
+    baseurl: >-
+      https://packages.gitlab.com/runner/gitlab-runner/el/{{
+      ansible_facts['distribution_major_version'] }}/$basearch
+    gpgcheck: true
+    repo_gpgcheck: true
+    gpgkey: "https://packages.gitlab.com/runner/gitlab-runner/gpgkey"
+    sslverify: true
+    sslcacert: "/etc/pki/tls/certs/ca-bundle.crt"
+    state: present

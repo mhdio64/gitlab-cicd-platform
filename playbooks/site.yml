@@ -1,0 +1,16 @@
+---
+# ==============================================================================
+# Master Orchestration Playbook: GitLab CI/CD Platform Bootstrap
+# ==============================================================================
+
+# 1. Provision and Configure Dedicated GitLab Server & Container Registry
+- name: Deploy GitLab Server Infrastructure
+  ansible.builtin.import_playbook: gitlab.yml
+
+# 2. Provision and Register Dedicated Runner Fleet
+- name: Deploy GitLab Runner Fleet Infrastructure
+  ansible.builtin.import_playbook: runners.yml
+
+# 3. End-to-End Functional Platform Health Validation
+- name: Execute Platform Validation Suite
+  ansible.builtin.import_playbook: validate.yml

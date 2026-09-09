@@ -1,0 +1,35 @@
+---
+# Task: Configure official GitLab Omnibus APT repository for Debian/Ubuntu
+
+- name: Ensure /etc/apt/keyrings directory exists
+  ansible.builtin.file:
+    path: "/etc/apt/keyrings"
+    state: directory
+    mode: "0755"
+    owner: "root"
+    group: "root"
+
+- name: Download GitLab official GPG key
+  ansible.builtin.get_url:
+    url: "https://packages.gitlab.com/gitlab/gitlab-{{ gitlab_server_edition }}/gpgkey"
+    dest: "/etc/apt/keyrings/gitlab.asc"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  register: gitlab_server_gpg_download
+
+- name: Dearmor GitLab GPG key for modern apt keyring
+  ansible.builtin.command:
+    cmd: "gpg --dearmor -o /etc/apt/keyrings/gitlab.gpg /etc/apt/keyrings/gitlab.asc"
+    creates: "/etc/apt/keyrings/gitlab.gpg"
+  when: gitlab_server_gpg_download.changed # noqa: no-handler
+
+- name: Configure GitLab APT repository source
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [signed-by=/etc/apt/keyrings/gitlab.gpg]
+      https://packages.gitlab.com/gitlab/gitlab-{{ gitlab_server_edition }}/{{ ansible_facts['distribution'] | lower }}/
+      {{ ansible_facts['distribution_release'] }} main
+    filename: "gitlab_gitlab-{{ gitlab_server_edition }}"
+    state: present
+    update_cache: true

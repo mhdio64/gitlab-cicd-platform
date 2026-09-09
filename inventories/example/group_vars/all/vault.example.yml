@@ -1,0 +1,25 @@
+---
+# ==============================================================================
+# Ansible Vault Template (DO NOT COMMIT REAL SECRETS)
+# Copy this file to `vault.yml` and encrypt with:
+#   ansible-vault encrypt inventories/<env>/group_vars/all/vault.yml
+# ==============================================================================
+
+# Initial root password for GitLab Omnibus installation
+vault_gitlab_root_password: "CHANGE_ME_ROOT_PASSWORD"
+
+# Runner Authentication Tokens (glrt-...)
+# Unique token per runner host generated from GitLab 16+ UI or API
+vault_gitlab_runner_auth_tokens:
+  runner-01: "glrt-CHANGE_ME_RUNNER_01_TOKEN"
+  runner-02: "glrt-CHANGE_ME_RUNNER_02_TOKEN"
+  runner-03: "glrt-CHANGE_ME_RUNNER_03_TOKEN"
+
+# Optional: GitLab Admin API Token for programmatic runner creation
+vault_gitlab_admin_api_token: "CHANGE_ME_GITLAB_API_TOKEN"
+
+# Optional: External Registry Password (when registry_mode: 'external')
+vault_external_registry_password: "CHANGE_ME_EXTERNAL_REGISTRY_PASSWORD"
+
+# Optional: SMTP Password
+vault_gitlab_smtp_password: "CHANGE_ME_SMTP_PASSWORD"

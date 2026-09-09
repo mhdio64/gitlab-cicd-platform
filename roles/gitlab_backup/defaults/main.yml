@@ -1,0 +1,19 @@
+---
+# Defaults for gitlab_backup role
+
+# Application data backup destination
+gitlab_backup_path: "/var/opt/gitlab/backups"
+
+# Configuration and secrets archive destination
+gitlab_backup_config_path: "/var/opt/gitlab/config-backups"
+
+# Retention in seconds (default: 604800 seconds = 7 days)
+gitlab_backup_keep_time: 604800
+
+# Automated cron schedule
+gitlab_backup_enable_cron: true
+gitlab_backup_cron_hour: "02"
+gitlab_backup_cron_minute: "30"
+
+# Trigger an immediate on-demand backup run
+gitlab_backup_run_now: false

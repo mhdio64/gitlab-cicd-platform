@@ -1,0 +1,14 @@
+---
+# Host-specific variables for runner-03
+ansible_host: "192.168.10.23"
+gitlab_runner_profile: "deploy"
+gitlab_runner_name: "runner-03-deploy"
+
+gitlab_runner_tags:
+  - "deploy"
+  - "production-deploy"
+
+# Security: Only jobs from protected branches and tags can execute
+gitlab_runner_protected: true
+gitlab_runner_run_untagged: false
+gitlab_runner_concurrency: 1

@@ -1,0 +1,22 @@
+---
+# Entry point for gitlab_server role
+
+- name: Validate server configuration parameters
+  ansible.builtin.include_tasks: validate_config.yml
+
+- name: Configure official GitLab APT repository (Debian/Ubuntu)
+  ansible.builtin.include_tasks: repository_debian.yml
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Configure official GitLab YUM repository (RedHat)
+  ansible.builtin.include_tasks: repository_redhat.yml
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Install pinned GitLab Omnibus package
+  ansible.builtin.include_tasks: install_package.yml
+
+- name: Configure GitLab Omnibus (/etc/gitlab/gitlab.rb)
+  ansible.builtin.include_tasks: configure.yml
+
+- name: Validate GitLab service health and availability
+  ansible.builtin.include_tasks: validate_service.yml

@@ -1,0 +1,52 @@
+---
+# ==========================================
+# GitLab Server Omnibus Configuration
+# ==========================================
+
+# GitLab version pinning (do not use 'latest' in production)
+gitlab_server_version: "17.4.2"
+gitlab_server_edition: "ce"  # 'ce' for Community Edition, 'ee' for Enterprise Edition
+
+# Primary external URL (enforces HTTPS)
+gitlab_server_external_url: "https://gitlab.example.com"
+
+# TLS Configuration
+# Supported modes:
+# - 'letsencrypt': Automated certificate generation via Omnibus ACME
+# - 'custom': User-provided certificate and private key
+# - 'none': Plain HTTP (strictly NOT recommended for production)
+gitlab_server_tls_mode: "letsencrypt"
+gitlab_server_letsencrypt_contact_emails:
+  - "admin@example.com"
+
+# In custom TLS mode, specify absolute paths on target server:
+gitlab_server_ssl_certificate: "/etc/gitlab/ssl/gitlab.example.com.crt"
+gitlab_server_ssl_certificate_key: "/etc/gitlab/ssl/gitlab.example.com.key"
+
+# ==========================================
+# GitLab Container Registry
+# ==========================================
+# Supported modes: 'gitlab' (built-in Omnibus registry) or 'external'
+registry_mode: "gitlab"
+
+gitlab_registry_enable: true
+gitlab_registry_external_url: "https://gitlab.example.com:5050"
+gitlab_registry_storage_path: "/var/opt/gitlab/gitlab-rails/shared/registry"
+
+# ==========================================
+# Backup and Retention
+# ==========================================
+gitlab_backup_path: "/var/opt/gitlab/backups"
+gitlab_backup_config_path: "/var/opt/gitlab/config-backups"
+gitlab_backup_keep_time: 604800  # Retention: 7 days in seconds
+gitlab_backup_cron_hour: "02"
+gitlab_backup_cron_minute: "30"
+
+# ==========================================
+# Observability & Monitoring
+# ==========================================
+gitlab_monitoring_prometheus_enable: true
+gitlab_monitoring_listen_address: "0.0.0.0:9090"
+gitlab_monitoring_allowed_ips:
+  - "127.0.0.1"
+  - "192.168.10.0/24"

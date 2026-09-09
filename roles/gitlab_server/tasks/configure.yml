@@ -1,0 +1,65 @@
+---
+# Task: Deploy GitLab Omnibus configuration (/etc/gitlab/gitlab.rb) and TLS certs
+
+- name: Ensure /etc/gitlab directory exists
+  ansible.builtin.file:
+    path: "/etc/gitlab"
+    state: directory
+    mode: "0775"
+    owner: "root"
+    group: "root"
+
+- name: Ensure /etc/gitlab/ssl directory exists when using custom TLS
+  ansible.builtin.file:
+    path: "/etc/gitlab/ssl"
+    state: directory
+    mode: "0700"
+    owner: "root"
+    group: "root"
+  when: gitlab_server_tls_mode == 'custom'
+
+- name: Deploy custom TLS certificate
+  ansible.builtin.copy:
+    src: "{{ gitlab_server_custom_cert_src }}"
+    dest: "{{ gitlab_server_ssl_certificate }}"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  when:
+    - gitlab_server_tls_mode == 'custom'
+    - gitlab_server_custom_cert_src | length > 0
+  notify: "reconfigure gitlab"
+
+- name: Deploy custom TLS private key
+  ansible.builtin.copy:
+    src: "{{ gitlab_server_custom_key_src }}"
+    dest: "{{ gitlab_server_ssl_certificate_key }}"
+    mode: "0600"
+    owner: "root"
+    group: "root"
+  when:
+    - gitlab_server_tls_mode == 'custom'
+    - gitlab_server_custom_key_src | length > 0
+  notify: "reconfigure gitlab"
+
+- name: Verify custom TLS certificate and key files exist on target (Fail-Closed)
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - "{{ gitlab_server_ssl_certificate }}"
+    - "{{ gitlab_server_ssl_certificate_key }}"
+  register: gitlab_server_tls_file_stats
+  failed_when: not item.stat.exists
+  when: gitlab_server_tls_mode == 'custom'
+
+- name: Render /etc/gitlab/gitlab.rb
+  ansible.builtin.template:
+    src: "gitlab.rb.j2"
+    dest: "/etc/gitlab/gitlab.rb"
+    mode: "0600"
+    owner: "root"
+    group: "root"
+  notify: "reconfigure gitlab"
+
+- name: Flush handlers to reconfigure GitLab if configuration changed
+  ansible.builtin.meta: flush_handlers

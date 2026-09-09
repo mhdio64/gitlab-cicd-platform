@@ -1,0 +1,52 @@
+---
+# Task: Discover existing installation state before mutation
+
+- name: Check for existing GitLab Omnibus binary
+  ansible.builtin.stat:
+    path: "/opt/gitlab/bin/gitlab-ctl"
+  register: gitlab_common_ctl_stat
+
+- name: Set fact for existing GitLab Server installation
+  ansible.builtin.set_fact:
+    gitlab_common_server_is_installed: "{{ gitlab_common_ctl_stat.stat.exists }}"
+
+- name: Read existing GitLab version from manifest if installed
+  ansible.builtin.slurp:
+    src: "/opt/gitlab/version-manifest.json"
+  register: gitlab_common_version_manifest
+  when: gitlab_common_server_is_installed | bool
+  ignore_errors: true
+
+- name: Parse existing GitLab version
+  ansible.builtin.set_fact:
+    gitlab_common_server_installed_version: >-
+      {{ (gitlab_common_version_manifest.content | b64decode | from_json).build_version
+         if (gitlab_common_version_manifest is defined and gitlab_common_version_manifest.content is defined)
+         else 'unknown' }}
+  when: gitlab_common_server_is_installed | bool
+
+- name: Check for existing GitLab Runner binary
+  ansible.builtin.stat:
+    path: "/usr/bin/gitlab-runner"
+  register: gitlab_common_runner_stat
+
+- name: Set fact for existing GitLab Runner installation
+  ansible.builtin.set_fact:
+    gitlab_common_runner_is_installed: "{{ gitlab_common_runner_stat.stat.exists }}"
+
+- name: Check for Docker binary
+  ansible.builtin.stat:
+    path: "/usr/bin/docker"
+  register: gitlab_common_docker_stat
+
+- name: Set fact for Docker installation status
+  ansible.builtin.set_fact:
+    gitlab_common_docker_is_installed: "{{ gitlab_common_docker_stat.stat.exists }}"
+
+- name: Display discovered node state
+  ansible.builtin.debug:
+    msg:
+      - "GitLab Omnibus Installed: {{ gitlab_common_server_is_installed }}"
+      - "GitLab Installed Version: {{ gitlab_common_server_installed_version | default('N/A') }}"
+      - "GitLab Runner Installed: {{ gitlab_common_runner_is_installed }}"
+      - "Docker Installed: {{ gitlab_common_docker_is_installed }}"

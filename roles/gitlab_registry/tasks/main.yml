@@ -1,0 +1,62 @@
+---
+# Main tasks for gitlab_registry role
+
+- name: Validate registry configuration parameters
+  ansible.builtin.assert:
+    that:
+      - gitlab_registry_mode in ['gitlab', 'external']
+    fail_msg: >-
+      Invalid registry mode: '{{ gitlab_registry_mode }}'. Must be 'gitlab' or 'external'.
+    success_msg: "Registry mode '{{ gitlab_registry_mode }}' is valid."
+
+- name: Validate built-in registry URL when enabled
+  ansible.builtin.assert:
+    that:
+      - gitlab_registry_external_url is defined
+      - gitlab_registry_external_url.startswith('https://') or gitlab_registry_external_url.startswith('http://')
+    fail_msg: >-
+      Invalid gitlab_registry_external_url: '{{ gitlab_registry_external_url | default('') }}'.
+      Must start with 'https://' or 'http://'.
+  when:
+    - gitlab_registry_mode == 'gitlab'
+    - gitlab_registry_enable | bool
+
+- name: Ensure registry storage path exists on GitLab Server
+  ansible.builtin.file:
+    path: "{{ gitlab_registry_storage_path }}"
+    state: directory
+    owner: "git"
+    group: "git"
+    mode: "0700"
+  when:
+    - gitlab_registry_mode == 'gitlab'
+    - gitlab_registry_enable | bool
+
+- name: Probe built-in GitLab Registry API (/v2/)
+  ansible.builtin.uri:
+    url: "{{ gitlab_registry_external_url }}/v2/"
+    method: GET
+    status_code:
+      - 200
+      - 401 # Docker Registry v2 specification returns 401 Unauthorized when auth is required
+    validate_certs: "{{ gitlab_server_tls_mode != 'custom' }}"
+  register: gitlab_registry_api_response
+  until: gitlab_registry_api_response.status in [200, 401]
+  retries: "{{ (gitlab_registry_health_timeout | int // gitlab_registry_health_delay | int) }}"
+  delay: "{{ gitlab_registry_health_delay }}"
+  when:
+    - gitlab_registry_mode == 'gitlab'
+    - gitlab_registry_enable | bool
+    - not (ansible_check_mode | bool)
+
+- name: Confirm GitLab Registry is operational
+  ansible.builtin.debug:
+    msg: "GitLab Container Registry is active and responsive at {{ gitlab_registry_external_url }}"
+  when:
+    - gitlab_registry_mode == 'gitlab'
+    - gitlab_registry_enable | bool
+
+- name: Note external registry mode active
+  ansible.builtin.debug:
+    msg: "Built-in GitLab registry is disabled. Target CI/CD external registry mode is active."
+  when: gitlab_registry_mode == 'external'
