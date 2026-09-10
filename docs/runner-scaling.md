@@ -109,7 +109,7 @@ In legacy GitLab architectures (< 16.0), runners registered using a shared insta
 - Deprecation: GitLab has deprecated and is removing this workflow.
 
 ### Modern Authentication Token Workflow (`glrt-...`)
-In GitLab 16.0+ and 17.x:
+In modern GitLab architectures (GitLab 16.0+ through 19.x):
 1. A runner registration record is created in GitLab (via Web UI or GitLab API).
 2. GitLab assigns a unique **Runner Authentication Token** prefixed with `glrt-`.
 3. The runner host registers once with:

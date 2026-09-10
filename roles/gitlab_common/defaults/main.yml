@@ -45,3 +45,4 @@ gitlab_common_prerequisite_packages_redhat:
   - "openssh-server"
   - "tzdata"
   - "policycoreutils-python-utils"
+  - "python3-dnf-plugin-versionlock"

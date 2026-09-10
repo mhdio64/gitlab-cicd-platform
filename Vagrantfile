@@ -3,11 +3,24 @@
 # ==============================================================================
 # Vagrantfile for Local GitLab CI/CD Platform Lab
 # Compatible with both Libvirt (KVM) and VirtualBox providers
+# Supported Distros: ubuntu-22.04, ubuntu-24.04, debian-12, debian-11, rocky-9, rocky-8
+# Usage: DISTRO=debian-12 vagrant up
 # ==============================================================================
 
+BOX_MAP = {
+  "ubuntu-22.04" => "bento/ubuntu-22.04",
+  "ubuntu-24.04" => "bento/ubuntu-24.04",
+  "debian-12"    => "bento/debian-12",
+  "debian-11"    => "bento/debian-11",
+  "rocky-9"      => "bento/rockylinux-9",
+  "rocky-8"      => "bento/rockylinux-8"
+}
+
+distro_key = ENV["DISTRO"] || "rocky-9"
+box_image = BOX_MAP[distro_key] || distro_key
+
 Vagrant.configure("2") do |config|
-  # Base Box: Official Ubuntu 22.04 LTS (Jammy)
-  config.vm.box = "bento/ubuntu-22.04"
+  config.vm.box = box_image
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   # ----------------------------------------------------------------------------

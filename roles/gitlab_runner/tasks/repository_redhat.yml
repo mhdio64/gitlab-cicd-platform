@@ -1,6 +1,11 @@
 ---
 # Task: Configure official GitLab Runner YUM repository for RedHat/Rocky
 
+- name: Import GitLab Runner official GPG key (RedHat)
+  ansible.builtin.rpm_key:
+    key: "https://packages.gitlab.com/runner/gitlab-runner/gpgkey"
+    state: present
+
 - name: Configure GitLab Runner YUM repository
   ansible.builtin.yum_repository:
     name: "gitlab_runner"

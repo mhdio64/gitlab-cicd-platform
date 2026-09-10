@@ -1,0 +1,53 @@
+---
+# Task: Ensure necessary firewall ports are open if firewalld or UFW is active
+
+- name: Populate service facts to detect active firewall daemons
+  ansible.builtin.service_facts:
+
+- name: Permit standard HTTP/HTTPS/SSH in firewalld (RedHat/Rocky/Alma)
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: true
+  loop:
+    - "http"
+    - "https"
+    - "ssh"
+  when:
+    - ansible_facts.services['firewalld.service'] is defined
+    - ansible_facts.services['firewalld.service'].state == 'running'
+
+- name: Permit GitLab Container Registry port in firewalld
+  ansible.posix.firewalld:
+    port: "5050/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+  when:
+    - ansible_facts.services['firewalld.service'] is defined
+    - ansible_facts.services['firewalld.service'].state == 'running'
+    - gitlab_registry_enable | default(false) | bool
+
+- name: Permit standard HTTP/HTTPS/SSH in UFW (Debian/Ubuntu)
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - "80"
+    - "443"
+    - "22"
+  when:
+    - ansible_facts.services['ufw.service'] is defined
+    - ansible_facts.services['ufw.service'].state == 'running'
+
+- name: Permit GitLab Container Registry port in UFW
+  community.general.ufw:
+    rule: allow
+    port: "5050"
+    proto: tcp
+  when:
+    - ansible_facts.services['ufw.service'] is defined
+    - ansible_facts.services['ufw.service'].state == 'running'
+    - gitlab_registry_enable | default(false) | bool

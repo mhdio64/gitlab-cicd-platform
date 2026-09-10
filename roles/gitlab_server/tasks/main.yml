@@ -18,5 +18,9 @@
 - name: Configure GitLab Omnibus (/etc/gitlab/gitlab.rb)
   ansible.builtin.include_tasks: configure.yml
 
+- name: Configure firewall rules for GitLab services
+  ansible.builtin.include_tasks: firewall.yml
+  when: gitlab_server_manage_firewall | bool
+
 - name: Validate GitLab service health and availability
   ansible.builtin.include_tasks: validate_service.yml

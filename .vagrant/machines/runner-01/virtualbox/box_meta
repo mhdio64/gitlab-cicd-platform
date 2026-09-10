@@ -1,1 +1,1 @@
-{"name":"bento/ubuntu-22.04","version":"202510.26.0","provider":"virtualbox","directory":"boxes/bento-VAGRANTSLASH-ubuntu-22.04/202510.26.0/amd64/virtualbox"}
+{"name":"bento/rockylinux-9","version":"0","provider":"virtualbox","directory":"boxes/bento-VAGRANTSLASH-rockylinux-9/0/amd64/virtualbox"}

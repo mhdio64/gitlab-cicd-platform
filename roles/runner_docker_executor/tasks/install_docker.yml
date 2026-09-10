@@ -36,11 +36,19 @@
     update_cache: true
   when: ansible_facts['os_family'] == 'Debian'
 
+- name: Import Docker CE official GPG key (RedHat)
+  ansible.builtin.rpm_key:
+    key: "https://download.docker.com/linux/centos/gpg"
+    state: present
+  when: ansible_facts['os_family'] == 'RedHat'
+
 - name: Configure Docker YUM repository (RedHat)
   ansible.builtin.yum_repository:
     name: "docker-ce"
     description: "Docker CE Stable - $basearch"
-    baseurl: "https://download.docker.com/linux/centos/$releasever/$basearch/stable"
+    baseurl: >-
+      https://download.docker.com/linux/centos/{{
+      ansible_facts['distribution_major_version'] }}/$basearch/stable
     gpgcheck: true
     gpgkey: "https://download.docker.com/linux/centos/gpg"
     state: present
@@ -61,5 +69,8 @@
       - "docker-ce"
       - "docker-ce-cli"
       - "containerd.io"
+      - "docker-buildx-plugin"
+      - "docker-compose-plugin"
     state: present
+    allowerasing: true
   when: ansible_facts['os_family'] == 'RedHat'

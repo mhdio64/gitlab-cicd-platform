@@ -1,6 +1,11 @@
 ---
 # Task: Configure official GitLab Omnibus YUM/DNF repository for RedHat/Rocky/AlmaLinux
 
+- name: Import GitLab Omnibus official GPG key (RedHat)
+  ansible.builtin.rpm_key:
+    key: "https://packages.gitlab.com/gitlab/gitlab-{{ gitlab_server_edition }}/gpgkey"
+    state: present
+
 - name: Configure GitLab YUM repository
   ansible.builtin.yum_repository:
     name: "gitlab_gitlab-{{ gitlab_server_edition }}"

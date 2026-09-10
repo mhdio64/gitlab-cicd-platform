@@ -43,3 +43,6 @@ gitlab_server_extra_config: ""
 # Readiness timeout in seconds
 gitlab_server_health_check_timeout: 300
 gitlab_server_health_check_delay: 10
+
+# Firewall Management (automatically permit HTTP/HTTPS/SSH if firewalld or ufw is active)
+gitlab_server_manage_firewall: true
