@@ -1,7 +1,7 @@
 ---
 # Defaults for runner_docker_executor role
 
-# Docker installation toggle (default: false, assumes OS prepared by ansible-server-bootstrap)
+# Docker installation toggle (default: false, set to true to install Docker CE automatically)
 runner_docker_executor_install_docker: "{{ gitlab_runner_install_docker | default(false) }}"
 
 # Security baseline: Privileged mode is strictly FALSE by default

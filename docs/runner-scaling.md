@@ -6,7 +6,7 @@ This document details how to scale, configure, and manage the GitLab Runner flee
 
 ## 1. Fleet Architecture Principles
 
-In this toolkit, GitLab Runners are treated as an **elastic fleet of interchangeable worker nodes**, rather than individual, pet-like servers:
+In this platform, GitLab Runners are treated as an **elastic fleet of interchangeable worker nodes**, rather than individual, pet-like servers:
 
 - **Zero-Code Scaling**: Adding 1, 5, or 50 new runner hosts requires **zero changes** to Ansible playbooks or role tasks. You only add the new hosts to your inventory.
 - **Dedicated Isolation**: Every runner host is an independent Virtual Machine or Bare Metal server.
@@ -20,7 +20,7 @@ In this toolkit, GitLab Runners are treated as an **elastic fleet of interchange
 To scale out the runner fleet (e.g., adding `runner-04` and `runner-05`):
 
 ### Step 1: Provision the VM & Prepare Base OS
-Ensure the new target machines (`runner-04`, `runner-05`) have been bootstrapped (e.g., via `ansible-server-bootstrap`) with network, SSH, sudo access, and Docker Engine.
+Ensure the new target machines (`runner-04`, `runner-05`) have network connectivity, SSH, and sudo access, with Docker Engine installed (or enable `gitlab_runner_install_docker: true` to have the platform install Docker CE automatically).
 
 ### Step 2: Add Hosts to Inventory (`inventories/production/hosts.yml`)
 Add the new hosts under the `gitlab_runners` group:

@@ -7,8 +7,8 @@
       - gitlab_common_docker_is_installed or runner_docker_executor_install_docker
     fail_msg: >-
       Docker Engine is not installed on runner host '{{ inventory_hostname }}'.
-      Either install Docker via 'ansible-server-bootstrap' (recommended)
-      or set 'gitlab_runner_install_docker: true' in inventory variables to install Docker CE.
+      Please install Docker Engine on the host or set 'gitlab_runner_install_docker: true'
+      in inventory variables to have the platform install Docker CE automatically.
     success_msg: "Docker Engine prerequisite check passed."
 
 - name: Install Docker CE when requested and not present

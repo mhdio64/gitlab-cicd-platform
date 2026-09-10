@@ -1,29 +1,31 @@
 # Architecture & System Design
 
-This document details the architectural principles, component boundaries, network flows, and design decisions for the `gitlab-cicd-platform` toolkit.
+This document details the architectural principles, component boundaries, network flows, and design decisions for the GitLab CI/CD Platform.
 
 ---
 
-## 1. High-Level Ecosystem Topology
+## 1. Platform Scope & Architecture
 
-The GitLab CI/CD Platform is designed as an autonomous, reusable component within a broader DevOps Toolkit ecosystem:
+The GitLab CI/CD Platform provides complete, production-grade automation for self-managed GitLab infrastructure:
 
 ```text
-                                DevOps Toolkit
-                                      │
-          ┌───────────────────────────┴───────────────────────────┐
-          │                                                       │
-ansible-server-bootstrap                               gitlab-cicd-platform
-- Base OS configuration                                 - Dedicated GitLab Omnibus Server
-- SSH hardening & sudo users                            - Dedicated GitLab Runner Fleet
-- Base system packages & firewall                       - Container Registry (GitLab/External)
-- Time sync (NTP/chrony)                                - Backup & Disaster Recovery
-- Docker engine preparation                             - Health & End-to-End Validation
+                             GitLab CI/CD Platform
+                                       │
+          ┌────────────────────────────┴────────────────────────────┐
+          │                                                         │
+GitLab Omnibus Server                                    GitLab Runner Fleet
+- Dedicated Linux VM / Bare Metal                        - Dedicated Runner VMs / Bare Metal
+- Official GitLab Omnibus Package                        - Native systemd service
+- NGINX, Puma, PostgreSQL, Gitaly                        - Docker Executor (isolated jobs)
+- Integrated Container Registry                          - Flexible runner profile modeling
+- Automated Backup & Disaster Recovery                   - Modern token authentication (glrt-...)
+- Prometheus monitoring endpoints                        - Horizontal fleet scalability
 ```
 
-### Component Responsibility Boundary
-- **`ansible-server-bootstrap`**: Prepares the raw machine, provisions base users, configures network/firewall baselines, tightens SSH, and optionally installs Docker Engine.
-- **`gitlab-cicd-platform` (This Repository)**: Assumes a bootstrapped Linux host (or performs pre-flight verification). It manages the entire GitLab lifecycle, Omnibus configuration, Registry setup, Runner fleet orchestration, backup schedules, and platform validation. It never duplicates OS baseline configurations without justification.
+### Platform Responsibility & Scope
+- **GitLab Server Lifecycle**: Manages the complete lifecycle of GitLab Omnibus (installation, version pinning, configuration through `/etc/gitlab/gitlab.rb`, reconfiguration, upgrades, and automated backup schedules).
+- **Runner Fleet Orchestration**: Manages the deployment, token-based registration, optional Docker Engine installation, and profile concurrency for the dedicated runner fleet.
+- **Infrastructure Validation**: Performs strict pre-flight checks (OS compatibility, CPU architecture, prerequisites, network access, and firewall rules) before mutating target systems.
 
 ---
 
@@ -78,7 +80,7 @@ The physical/virtual topology separates the GitLab Server from its CI/CD Runner 
 | **Hosting Environment** | Virtual Machines / Bare Metal | Ensures predictable I/O performance, hardware stability, and simple maintenance without Kubernetes overhead. |
 | **GitLab Deployment** | Official Omnibus Linux Package | Recommended, battle-tested standard for self-managed GitLab. Avoids unsupported or complex container-in-container layers. |
 | **Dockerized GitLab** | **Strictly Prohibited** | Dockerized GitLab Omnibus adds unnecessary abstraction, storage complexity, and operational fragility on bare VM setups. |
-| **Kubernetes / Helm** | **Strictly Prohibited** | Out of scope for this VM/Bare Metal toolkit. |
+| **Kubernetes / Helm** | **Strictly Prohibited** | Out of scope for this VM/Bare Metal platform. |
 | **Jenkins** | **Strictly Prohibited** | GitLab CI/CD is the sole pipeline execution engine. |
 | **Runner Colocation** | **Strictly Prohibited** | Runners must never share a host with the GitLab server to prevent CI job memory exhaustion or security compromise of the server. |
 | **Runner Package** | Native System Package + systemd | Native system service ensures robust lifecycle management, proper log handling, and zero nested container issues. |
@@ -112,7 +114,7 @@ The physical/virtual topology separates the GitLab Server from its CI/CD Runner 
 ## 5. Architectural Principles
 
 ### 1. Configuration Drives Behavior, Code Remains Constant
-A core tenet of this DevOps toolkit is:
+A core tenet of this platform is:
 > *Configuration changes behavior. Code does not change per customer or project.*
 
 All client-specific and environment-specific settings (domains, certificates, resource quotas, runner counts, tags, tokens) are defined strictly through inventory files (`group_vars`, `host_vars`, and Ansible Vault). Ansible roles and playbooks remain 100% immutable across deployments.

@@ -1,19 +1,6 @@
-# GitLab CI/CD Platform — DevOps Toolkit
+# GitLab CI/CD Platform
 
-Production-grade, reusable, secure, idempotent, and scalable Ansible toolkit for bootstrapping and operating self-managed GitLab and a dedicated GitLab Runner fleet on Virtual Machines / Bare Metal.
-
-Part of the **DevOps Toolkit** ecosystem:
-```text
-DevOps Toolkit
-│
-├── ansible-server-bootstrap          # Base OS preparation, hardening, generic firewall
-│
-├── gitlab-cicd-platform (This repo)  # Dedicated GitLab CI/CD platform & runner fleet
-│
-├── observability-stack               # Monitoring, logging, alerting
-│
-└── reusable-gitlab-ci-components     # Application pipeline templates & components
-```
+Production-grade, reusable, secure, idempotent, and scalable Ansible platform for bootstrapping and operating self-managed GitLab and a dedicated GitLab Runner fleet on Virtual Machines / Bare Metal.
 
 ---
 
@@ -74,7 +61,7 @@ DevOps Toolkit
 > - **NO Kubernetes / Helm**: This platform is designed specifically for Linux Virtual Machines and Bare Metal hosts.
 > - **NO Dockerized GitLab Omnibus**: The GitLab server runs via the official Omnibus Linux package.
 > - **NO Jenkins**: GitLab CI/CD is the primary and only CI/CD engine in this stack.
-> - **Separation of Concerns**: Base OS hardening belongs to `ansible-server-bootstrap`. This toolkit validates prerequisites before mutation.
+> - **Separation of Concerns**: This platform validates all OS prerequisites before mutation and manages the dedicated GitLab platform lifecycle.
 
 ---
 

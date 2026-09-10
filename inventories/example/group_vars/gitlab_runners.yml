@@ -31,5 +31,5 @@ gitlab_runner_docker_volumes:
   - "/cache"
 
 # Docker Engine installation toggle on runner host:
-# Set to true if ansible-server-bootstrap did not install docker
+# Set to true to install Docker CE automatically on the runner host
 gitlab_runner_install_docker: false
